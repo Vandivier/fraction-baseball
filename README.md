@@ -7,7 +7,7 @@
 ## built with
 
 1. pnpm
-2. Next.js v15, React
+2. Next.js + React
 3. TailwindCSS
 4. Prisma ORM
 5. Supabase (postgres)
