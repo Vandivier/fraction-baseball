@@ -2,7 +2,9 @@
 
 ## installation
 
-`cd fraction-baseball && pnpm i`
+1. Ensure pnpm is available with node 22+
+2. Copy .env.example to the same dir, rename the copy `.env`, and fill values appropriately
+3. `cd fraction-baseball && pnpm i` from the root dir, which contains this README.md file
 
 ## built with
 
