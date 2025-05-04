@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignIn() {
   const router = useRouter();
@@ -84,7 +85,7 @@ export default function SignIn() {
             </div>
           )}
 
-          <div>
+          <div className="flex flex-col space-y-4">
             <button
               type="submit"
               disabled={isLoading}
@@ -92,6 +93,13 @@ export default function SignIn() {
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </button>
+
+            <Link
+              href="/"
+              className="flex w-full cursor-pointer justify-center rounded-full bg-gray-500 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-gray-600 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+            >
+              Back to Home
+            </Link>
           </div>
         </form>
       </div>
