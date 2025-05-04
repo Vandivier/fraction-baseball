@@ -2,8 +2,10 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { ProviderWrapper } from "./_components/provider-wrapper";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -22,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider headers={headers()}>
+          <ProviderWrapper>{children}</ProviderWrapper>
+        </TRPCReactProvider>
       </body>
     </html>
   );
