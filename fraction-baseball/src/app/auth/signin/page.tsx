@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function SignIn() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,16 +24,22 @@ export default function SignIn() {
         username,
         password,
         redirect: false,
+        callbackUrl,
       });
 
       if (result?.error) {
         setError("Invalid username or password");
+        console.error("Sign-in error:", result.error);
+      } else if (result?.url) {
+        // Successful login, redirect to the callback URL
+        window.location.href = result.url;
       } else {
-        router.push("/");
-        router.refresh();
+        // Fallback to home page if no URL is provided
+        window.location.href = "/";
       }
     } catch (error) {
       setError("An error occurred during sign in");
+      console.error("Sign-in error:", error);
     } finally {
       setIsLoading(false);
     }
