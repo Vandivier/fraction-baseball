@@ -23,15 +23,10 @@ export interface BaseballPlayer {
   "On-base Plus Slugging": number;
 }
 
-// Interface for Gemini API response
-interface GeminiResponse {
-  candidates: Array<{
-    content: {
-      parts: Array<{
-        text: string;
-      }>;
-    };
-  }>;
+// Interface for our player description API response
+interface PlayerDescriptionResponse {
+  description: string;
+  error?: string;
 }
 
 // Fetch baseball player data from the API
@@ -52,66 +47,33 @@ export async function fetchBaseballData(): Promise<BaseballPlayer[]> {
   }
 }
 
-// Generate a player description using Gemini
+// Generate a player description using our server-side API
 export async function generatePlayerDescription(
   player: BaseballPlayer,
 ): Promise<string> {
   try {
-    // For safety, we should use environment variables for API keys
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      console.warn("No Gemini API key found. Using fallback description.");
-      return generateFallbackDescription(player);
-    }
-
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `Generate a concise baseball player description for ${player["Player name"]} who plays ${player.position}. 
-                Include analysis of their key stats: Games: ${player.Games}, At-bats: ${player["At-bat"]}, 
-                Hits: ${player.Hits}, Home runs: ${player["home run"]}, RBIs: ${player["run batted in"]}, 
-                AVG: ${player.AVG}, OBP: ${player["On-base Percentage"]}, SLG: ${player["Slugging Percentage"]}.
-                Make it sound like professional baseball commentary in 3-4 sentences.`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 200,
-          },
-        }),
+    // Use our local API proxy to handle Gemini API calls server-side
+    const response = await fetch("/api/player-description", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(player),
+    });
 
     if (!response.ok) {
-      console.error("Gemini API error:", await response.text());
-      return generateFallbackDescription(player);
+      throw new Error(`API error: ${response.status}`);
     }
 
-    const result = (await response.json()) as GeminiResponse;
-    return (
-      result.candidates[0]?.content.parts[0]?.text ??
-      generateFallbackDescription(player)
-    );
+    const data = (await response.json()) as PlayerDescriptionResponse;
+    return data.description;
   } catch (error) {
     console.error("Error generating player description:", error);
     return generateFallbackDescription(player);
   }
 }
 
-// Fallback description generator if Gemini API is unavailable
+// Fallback description generator if API is unavailable
 function generateFallbackDescription(player: BaseballPlayer): string {
   const achievements = [];
 

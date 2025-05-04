@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,9 +10,9 @@ import {
 } from "~/lib/api";
 
 interface PlayerDetailProps {
-  params: {
+  params: Promise<{
     name: string;
-  };
+  }>;
 }
 
 export default function PlayerDetail({ params }: PlayerDetailProps) {
@@ -22,7 +22,9 @@ export default function PlayerDetail({ params }: PlayerDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const playerName = decodeURIComponent(params.name);
+  // Unwrap the params promise using React.use()
+  const resolvedParams = use(params);
+  const playerName = decodeURIComponent(resolvedParams.name);
 
   useEffect(() => {
     async function loadPlayerData() {
@@ -62,11 +64,11 @@ export default function PlayerDetail({ params }: PlayerDetailProps) {
     );
   }
 
-  if (error || !player) {
+  if (error ?? !player) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-12">
         <div className="mb-6 rounded-md border border-red-300 bg-red-100 p-4 text-red-800">
-          {error || "Player not found."}
+          {error ?? "Player not found."}
         </div>
         <Link href="/players" className="text-blue-600 hover:underline">
           ← Back to all players
@@ -96,7 +98,7 @@ export default function PlayerDetail({ params }: PlayerDetailProps) {
             Player Profile
           </h2>
           <p className="text-gray-700 italic">
-            {description || "Loading player description..."}
+            {description ?? "Loading player description..."}
           </p>
         </div>
 
