@@ -1,74 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} from "@google/generative-ai";
 import type { BaseballPlayer } from "~/lib/api";
 
-// Interface for Gemini API response
-interface GeminiResponse {
-  candidates: Array<{
-    content: {
-      parts: Array<{
-        text: string;
-      }>;
-    };
-  }>;
-}
+// Initialize the Gemini API client
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const MODEL_NAME = "gemini-2.0-flash"; // Using the latest Gemini 2.0 Flash model
+
+// Define generation configuration
+const generationConfig = {
+  temperature: 0.7,
+  topK: 1,
+  topP: 1,
+  maxOutputTokens: 200,
+};
+
+// Define safety settings
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+];
 
 export async function POST(request: NextRequest) {
   try {
     const player = (await request.json()) as BaseballPlayer;
 
-    // Access environment variables on the server side
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
+    // Check if API key is available
+    if (!GEMINI_API_KEY) {
       console.warn("No Gemini API key found. Using fallback description.");
       return NextResponse.json({
         description: generateFallbackDescription(player),
       });
     }
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `Generate a concise baseball player description for ${player["Player name"]} who plays ${player.position}. 
-                  Include analysis of their key stats: Games: ${player.Games}, At-bats: ${player["At-bat"]}, 
-                  Hits: ${player.Hits}, Home runs: ${player["home run"]}, RBIs: ${player["run batted in"]}, 
-                  AVG: ${player.AVG}, OBP: ${player["On-base Percentage"]}, SLG: ${player["Slugging Percentage"]}.
-                  Make it sound like professional baseball commentary in 3-4 sentences.`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 200,
-          },
-        }),
-      },
-    );
+    // Initialize the Gemini client
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: MODEL_NAME,
+      generationConfig,
+      safetySettings,
+    });
 
-    if (!response.ok) {
-      console.error("Gemini API error:", await response.text());
+    // Construct the prompt
+    const prompt = `
+      Generate a concise baseball player description for ${player["Player name"]} who plays ${player.position}. 
+      Include analysis of their key stats: Games: ${player.Games}, At-bats: ${player["At-bat"]}, 
+      Hits: ${player.Hits}, Home runs: ${player["home run"]}, RBIs: ${player["run batted in"]}, 
+      AVG: ${player.AVG.toFixed(3)}, OBP: ${player["On-base Percentage"].toFixed(3)}, SLG: ${player["Slugging Percentage"].toFixed(3)}.
+      Make it sound like professional baseball commentary in 3-4 sentences.
+    `;
+
+    // Make the API call
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
+
+    // Process the response
+    if (result.response) {
+      const description = result.response.text();
+      return NextResponse.json({ description });
+    } else {
+      console.error("Gemini API returned no response");
       return NextResponse.json({
         description: generateFallbackDescription(player),
       });
     }
-
-    const result = (await response.json()) as GeminiResponse;
-    const description =
-      result.candidates[0]?.content.parts[0]?.text ??
-      generateFallbackDescription(player);
-
-    return NextResponse.json({ description });
   } catch (error) {
     console.error("Error generating player description:", error);
     return NextResponse.json(
