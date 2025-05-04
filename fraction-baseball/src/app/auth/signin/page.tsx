@@ -37,10 +37,10 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white/10 p-6 shadow-md">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)]">
+      <div className="w-full max-w-md space-y-8 rounded-lg bg-black/10 p-6 shadow-md dark:bg-white/10">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--foreground)]">
             Sign in to your account
           </h2>
         </div>
@@ -55,7 +55,7 @@ export default function SignIn() {
                 name="username"
                 type="text"
                 required
-                className="relative block w-full appearance-none rounded-md border border-gray-300 bg-white/80 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+                className="relative block w-full appearance-none rounded-md border border-gray-300 bg-white/90 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -70,7 +70,7 @@ export default function SignIn() {
                 name="password"
                 type="password"
                 required
-                className="relative block w-full appearance-none rounded-md border border-gray-300 bg-white/80 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
+                className="relative block w-full appearance-none rounded-md border border-gray-300 bg-white/90 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -88,7 +88,7 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+              className="group relative flex w-full cursor-pointer justify-center rounded-full bg-gray-700 px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-gray-800 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </button>

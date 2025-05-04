@@ -4,3 +4,27 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #020817;
+    --gradient-start: #c8f7c8;
+    --gradient-end: #8fda91;
+  }
+
+  .dark {
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --gradient-start: #2c2c2c;
+    --gradient-end: #1a1a1a;
+  }
+
+  html {
+    @apply transition-colors duration-200;
+  }
+
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)];
+  }
+}
