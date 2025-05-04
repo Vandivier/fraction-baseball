@@ -37,9 +37,8 @@ interface GeminiResponse {
 // Fetch baseball player data from the API
 export async function fetchBaseballData(): Promise<BaseballPlayer[]> {
   try {
-    const response = await fetch(
-      "https://api.hirefraction.com/api/test/baseball",
-    );
+    // Use our local API proxy to avoid CORS issues
+    const response = await fetch("/api/baseball");
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
