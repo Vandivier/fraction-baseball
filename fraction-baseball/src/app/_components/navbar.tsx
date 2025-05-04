@@ -3,14 +3,33 @@
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "next-auth/react";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
+
+  // After mounting, we can safely show the UI that depends on the theme
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
+
+  // Don't render theme-dependent UI during SSR to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="fixed top-0 left-0 z-10 flex items-center gap-3 p-4">
+        <div className="h-9 w-9 rounded-full bg-gray-700 p-2 shadow-md"></div>
+        {session && (
+          <div className="h-9 w-9 rounded-full bg-gray-700 p-2 shadow-md"></div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="fixed top-0 left-0 z-10 flex items-center gap-3 p-4">

@@ -4,7 +4,8 @@
 
 1. Ensure pnpm is available with node 22+
 2. Copy .env.example to the same dir, rename the copy `.env`, and fill values appropriately
-3. `pnpx prisma db push` and manually add any users you would like to be able to sign in.
+3. `pnpx prisma db push` from the dir containing package.json and manually add any users you would like to be able to sign in.
+    1. `pnpx tsx scripts/generate-bcrypt-password.ts` will allow you to generate an encrypted password offline which can be used for authentication.
 4. `cd fraction-baseball && pnpm i` from the root dir, which contains this README.md file
 
 you can then launch the app with `pnpm dev`
