@@ -2,20 +2,22 @@ import Link from "next/link";
 
 import { auth } from "~/server/auth";
 import { HydrateClient } from "~/trpc/server";
+import PlayerSummary from "~/components/PlayerSummary";
+import StatsSummary from "~/components/StatsSummary";
 
 export default async function Home() {
   const session = await auth();
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] text-[var(--foreground)]">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            My Baseball App
-          </h1>
+      <main className="min-h-screen bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] text-[var(--foreground)]">
+        <div className="container mx-auto px-4 py-16">
+          <div className="mb-12 flex flex-col items-center justify-center">
+            <h1 className="mb-6 text-center text-5xl font-extrabold tracking-tight sm:text-[5rem]">
+              My Baseball App
+            </h1>
 
-          <div className="flex flex-col items-center justify-center gap-4">
-            <p className="text-center text-3xl">
+            <p className="mb-4 text-center text-3xl">
               {session?.user
                 ? `Hello ${session.user.username || session.user.name}`
                 : "Hello Guest"}
@@ -30,6 +32,14 @@ export default async function Home() {
               </Link>
             )}
           </div>
+
+          {/* Show baseball components only for signed-in users */}
+          {session?.user && (
+            <div className="space-y-8">
+              <PlayerSummary />
+              <StatsSummary />
+            </div>
+          )}
         </div>
       </main>
     </HydrateClient>
